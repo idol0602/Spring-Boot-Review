@@ -30,4 +30,23 @@ public class CartItem {
 
     @Column(nullable = false)
     private Integer quantity;
+
+    @Builder.Default
+    @Column(nullable = false, updatable = false)
+    private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();
+
+    @Builder.Default
+    @Column(nullable = false)
+    private java.time.LocalDateTime updatedAt = java.time.LocalDateTime.now();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = java.time.LocalDateTime.now();
+        updatedAt = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = java.time.LocalDateTime.now();
+    }
 }

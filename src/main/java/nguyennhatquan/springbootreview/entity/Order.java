@@ -32,6 +32,7 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status = OrderStatus.PENDING;
@@ -39,6 +40,7 @@ public class Order {
     @Column(columnDefinition = "TEXT")
     private String shippingAddress;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean isDeleted = false;
 
@@ -48,9 +50,24 @@ public class Order {
     @Version
     private Long version;
 
+    @Builder.Default
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Builder.Default
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @PrePersist
+    protected void onCreate() {
+        if (status == null) status = OrderStatus.PENDING;
+        if (isDeleted == null) isDeleted = false;
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

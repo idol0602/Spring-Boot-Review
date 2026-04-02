@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import nguyennhatquan.springbootreview.security.CustomUserDetails;
 import nguyennhatquan.springbootreview.security.JwtAuthenticationEntryPoint;
 import nguyennhatquan.springbootreview.security.JwtAuthenticationFilter;
+import nguyennhatquan.springbootreview.security.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,7 @@ import nguyennhatquan.springbootreview.repository.UserRepository;
 public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final UserRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider; // inject the Spring bean
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -50,6 +52,12 @@ public class SecurityConfig {
     }
 
     @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(UserDetailsService userDetailsService) {
+        // create filter bean here to avoid circular dependency with @Component
+        return new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService);
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -69,4 +77,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-

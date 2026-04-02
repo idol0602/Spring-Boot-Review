@@ -1,10 +1,14 @@
 package nguyennhatquan.springbootreview.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class CreateUserRequest {
 
@@ -27,4 +31,3 @@ public class CreateUserRequest {
     @Size(max = 500, message = "Address must not exceed 500 characters")
     private String address;
 }
-

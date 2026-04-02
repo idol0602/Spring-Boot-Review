@@ -1,11 +1,17 @@
 package nguyennhatquan.springbootreview.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UpdateProductRequest {
 
     @NotBlank(message = "Product name is required")
