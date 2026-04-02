@@ -1,0 +1,58 @@
+# Build directories
+target/
+build/
+.gradle/
+out/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+.classpath
+.project
+.settings/
+*.iml
+*.iws
+*.ipr
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+*.log.*
+spring.log
+springboot-*.log
+
+# Runtime
+.mvn/
+mvnw.cmd.bak
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# Database
+*.db
+*.sqlite
+*.sql.bak
+
+# Redis
+dump.rdb
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Docker
+docker-compose.override.yml
+
