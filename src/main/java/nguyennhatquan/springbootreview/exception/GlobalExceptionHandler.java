@@ -171,6 +171,21 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(InvalidPaginationParameterException.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidPaginationParameterException(
+            InvalidPaginationParameterException ex, WebRequest request) {
+        log.warn("Invalid pagination parameter: {}", ex.getMessage());
+
+        ApiResponse<Object> response = ApiResponse.builder()
+                .code(400)
+                .message(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .path(extractPath(request))
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     private String extractPath(WebRequest request) {
         String description = request.getDescription(false);
         return description.replace("uri=", "");

@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nguyennhatquan.springbootreview.dto.*;
+import nguyennhatquan.springbootreview.exception.InvalidPaginationParameterException;
 import nguyennhatquan.springbootreview.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +25,29 @@ public class ProductController {
     public ResponseEntity<ApiResponse<PageResponse<ProductResponse>>> getAll(
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize) {
-        log.info("Get all products - page: {}, size: {}", pageNo, pageSize);
+        try {
+            log.info("Get all products - page: {}, size: {}", pageNo, pageSize);
 
-        PageResponse<ProductResponse> data = productService.getAll(pageNo, pageSize);
+            if (pageNo < 0 || pageSize <= 0) {
+                log.warn("Invalid pagination parameters - pageNo: {}, pageSize: {}", pageNo, pageSize);
+                throw new InvalidPaginationParameterException(
+                        "Invalid pagination parameters: pageNo must be >= 0 and pageSize must be > 0");
+            }
 
-        ApiResponse<PageResponse<ProductResponse>> response = ApiResponse.<PageResponse<ProductResponse>>builder()
-                .code(200)
-                .message("Products retrieved successfully")
-                .data(data)
-                .timestamp(LocalDateTime.now())
-                .build();
+            PageResponse<ProductResponse> data = productService.getAll(pageNo, pageSize);
 
-        return ResponseEntity.ok(response);
+            ApiResponse<PageResponse<ProductResponse>> response = ApiResponse.<PageResponse<ProductResponse>>builder()
+                    .code(200)
+                    .message("Products retrieved successfully")
+                    .data(data)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error retrieving all products", e);
+            throw e;
+        }
     }
 
     @GetMapping("/category/{categoryId}")
@@ -43,18 +55,34 @@ public class ProductController {
             @PathVariable Long categoryId,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize) {
-        log.info("Get products by category {} - page: {}, size: {}", categoryId, pageNo, pageSize);
+        try {
+            log.info("Get products by category {} - page: {}, size: {}", categoryId, pageNo, pageSize);
 
-        PageResponse<ProductResponse> data = productService.getByCategory(categoryId, pageNo, pageSize);
+            if (categoryId == null || categoryId <= 0) {
+                log.warn("Invalid category ID: {}", categoryId);
+                throw new InvalidPaginationParameterException("Invalid category ID: must be a positive number");
+            }
 
-        ApiResponse<PageResponse<ProductResponse>> response = ApiResponse.<PageResponse<ProductResponse>>builder()
-                .code(200)
-                .message("Products retrieved successfully")
-                .data(data)
-                .timestamp(LocalDateTime.now())
-                .build();
+            if (pageNo < 0 || pageSize <= 0) {
+                log.warn("Invalid pagination parameters - pageNo: {}, pageSize: {}", pageNo, pageSize);
+                throw new InvalidPaginationParameterException(
+                        "Invalid pagination parameters: pageNo must be >= 0 and pageSize must be > 0");
+            }
 
-        return ResponseEntity.ok(response);
+            PageResponse<ProductResponse> data = productService.getByCategory(categoryId, pageNo, pageSize);
+
+            ApiResponse<PageResponse<ProductResponse>> response = ApiResponse.<PageResponse<ProductResponse>>builder()
+                    .code(200)
+                    .message("Products retrieved successfully")
+                    .data(data)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error retrieving products by category: {}", categoryId, e);
+            throw e;
+        }
     }
 
     @GetMapping("/search")
@@ -62,51 +90,92 @@ public class ProductController {
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize) {
-        log.info("Search products with keyword: {} - page: {}, size: {}", keyword, pageNo, pageSize);
+        try {
+            log.info("Search products with keyword: {} - page: {}, size: {}", keyword, pageNo, pageSize);
 
-        PageResponse<ProductResponse> data = productService.search(keyword, pageNo, pageSize);
+            if (keyword == null || keyword.trim().isEmpty()) {
+                log.warn("Invalid search keyword");
+                throw new InvalidPaginationParameterException("Search keyword cannot be empty");
+            }
 
-        ApiResponse<PageResponse<ProductResponse>> response = ApiResponse.<PageResponse<ProductResponse>>builder()
-                .code(200)
-                .message("Products retrieved successfully")
-                .data(data)
-                .timestamp(LocalDateTime.now())
-                .build();
+            if (pageNo < 0 || pageSize <= 0) {
+                log.warn("Invalid pagination parameters - pageNo: {}, pageSize: {}", pageNo, pageSize);
+                throw new InvalidPaginationParameterException(
+                        "Invalid pagination parameters: pageNo must be >= 0 and pageSize must be > 0");
+            }
 
-        return ResponseEntity.ok(response);
+            PageResponse<ProductResponse> data = productService.search(keyword, pageNo, pageSize);
+
+            ApiResponse<PageResponse<ProductResponse>> response = ApiResponse.<PageResponse<ProductResponse>>builder()
+                    .code(200)
+                    .message("Products retrieved successfully")
+                    .data(data)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error searching products with keyword: {}", keyword, e);
+            throw e;
+        }
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> getById(@PathVariable Long id) {
-        log.info("Get product by id: {}", id);
+        try {
+            log.info("Get product by id: {}", id);
 
-        ProductResponse data = productService.getById(id);
+            if (id == null || id <= 0) {
+                log.warn("Invalid product ID: {}", id);
+                throw new InvalidPaginationParameterException("Invalid product ID: must be a positive number");
+            }
 
-        ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
-                .code(200)
-                .message("Product retrieved successfully")
-                .data(data)
-                .timestamp(LocalDateTime.now())
-                .build();
+            ProductResponse data = productService.getById(id);
 
-        return ResponseEntity.ok(response);
+            ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
+                    .code(200)
+                    .message("Product retrieved successfully")
+                    .data(data)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error retrieving product by id: {}", id, e);
+            throw e;
+        }
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ProductResponse>> create(@Valid @RequestBody CreateProductRequest request) {
-        log.info("Create product: {}", request.getName());
+        try {
+            log.info("Create product: {}", request.getName());
 
-        ProductResponse data = productService.create(request);
+            if (request == null) {
+                log.warn("Product creation request is null");
+                ApiResponse<ProductResponse> errorResponse = ApiResponse.<ProductResponse>builder()
+                        .code(400)
+                        .message("Product creation request cannot be null")
+                        .timestamp(LocalDateTime.now())
+                        .build();
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
 
-        ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
-                .code(201)
-                .message("Product created successfully")
-                .data(data)
-                .timestamp(LocalDateTime.now())
-                .build();
+            ProductResponse data = productService.create(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
+                    .code(201)
+                    .message("Product created successfully")
+                    .data(data)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            log.error("Error creating product: {}", request != null ? request.getName() : "unknown", e);
+            throw e;
+        }
     }
 
     @PutMapping("/{id}")
@@ -114,33 +183,63 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateProductRequest request) {
-        log.info("Update product with id: {}", id);
+        try {
+            log.info("Update product with id: {}", id);
 
-        ProductResponse data = productService.update(id, request);
+            if (id == null || id <= 0) {
+                log.warn("Invalid product ID for update: {}", id);
+                throw new InvalidPaginationParameterException("Invalid product ID: must be a positive number");
+            }
 
-        ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
-                .code(200)
-                .message("Product updated successfully")
-                .data(data)
-                .timestamp(LocalDateTime.now())
-                .build();
+            if (request == null) {
+                log.warn("Product update request is null");
+                ApiResponse<ProductResponse> errorResponse = ApiResponse.<ProductResponse>builder()
+                        .code(400)
+                        .message("Product update request cannot be null")
+                        .timestamp(LocalDateTime.now())
+                        .build();
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
 
-        return ResponseEntity.ok(response);
+            ProductResponse data = productService.update(id, request);
+
+            ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
+                    .code(200)
+                    .message("Product updated successfully")
+                    .data(data)
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error updating product with id: {}", id, e);
+            throw e;
+        }
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Object>> delete(@PathVariable Long id) {
-        log.info("Delete product with id: {}", id);
+        try {
+            log.info("Delete product with id: {}", id);
 
-        productService.delete(id);
+            if (id == null || id <= 0) {
+                log.warn("Invalid product ID for deletion: {}", id);
+                throw new InvalidPaginationParameterException("Invalid product ID: must be a positive number");
+            }
 
-        ApiResponse<Object> response = ApiResponse.builder()
-                .code(200)
-                .message("Product deleted successfully")
-                .timestamp(LocalDateTime.now())
-                .build();
+            productService.delete(id);
 
-        return ResponseEntity.ok(response);
+            ApiResponse<Object> response = ApiResponse.builder()
+                    .code(200)
+                    .message("Product deleted successfully")
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error deleting product with id: {}", id, e);
+            throw e;
+        }
     }
 }
