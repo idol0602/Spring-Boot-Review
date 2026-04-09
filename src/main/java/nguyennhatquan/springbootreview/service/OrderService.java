@@ -2,8 +2,8 @@ package nguyennhatquan.springbootreview.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nguyennhatquan.springbootreview.dto.OrderResponse;
-import nguyennhatquan.springbootreview.dto.PageResponse;
+import nguyennhatquan.springbootreview.dto.order.OrderResponse;
+import nguyennhatquan.springbootreview.dto.common.PageResponse;
 import nguyennhatquan.springbootreview.entity.*;
 import nguyennhatquan.springbootreview.exception.BadRequestException;
 import nguyennhatquan.springbootreview.exception.ResourceNotFoundException;
@@ -11,6 +11,7 @@ import nguyennhatquan.springbootreview.repository.CartItemRepository;
 import nguyennhatquan.springbootreview.repository.CartRepository;
 import nguyennhatquan.springbootreview.repository.OrderRepository;
 import nguyennhatquan.springbootreview.repository.ProductRepository;
+import nguyennhatquan.springbootreview.dto.order.CheckoutRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -52,7 +53,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse createOrderFromCart(Long userId, String shippingAddress) throws BadRequestException {
+    public Order createOrder(CheckoutRequest request, Long userId) {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user: " + userId));
 
@@ -60,45 +61,45 @@ public class OrderService {
             throw new BadRequestException("Cart is empty");
         }
 
-        for(CartItem cartItem : cart.getItems()) {
+        Order order = new Order();
+        order.setUser(cart.getUser());
+        order.setShippingAddress(request.getShippingAddress());
+        order.setStatus(OrderStatus.PENDING);
+        order.setTotalAmount(BigDecimal.ZERO);
+        order.setItems(new ArrayList<>());
+        order.setIsDeleted(false);
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (CartItem cartItem : cart.getItems()) {
             Product product = cartItem.getProduct();
-            if(product.getStock() < cartItem.getQuantity()) {
-                throw new BadRequestException("Insufficient stock for product: " + product.getName()
-                        + " (available: " + product.getStock() + ", requested: " + cartItem.getQuantity() + ")");
+            int qty = cartItem.getQuantity();
+
+            if (product.getStock() < qty) {
+                throw new BadRequestException("Not enough stock for product: " + product.getName());
             }
-        }
 
-        Order order = Order.builder()
-                .user(cart.getUser())
-                .status(OrderStatus.PENDING)
-                .shippingAddress(shippingAddress)
-                .items(new ArrayList<>())
-                .build();
+            product.setStock(product.getStock() - qty);
+            productRepository.save(product);
 
-        BigDecimal totalAmount = BigDecimal.ZERO;
-
-        for(CartItem cartItem : cart.getItems()) {
-            Product product = cartItem.getProduct();
-            OrderItem orderItem = OrderItem.builder()
-                    .order(order)
-                    .product(product)
-                    .quantity(cartItem.getQuantity())
-                    .price(product.getPrice())
-                    .build();
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProduct(product);
+            orderItem.setQuantity(qty);
+            orderItem.setPrice(product.getPrice());
 
             order.getItems().add(orderItem);
-            totalAmount = totalAmount.add(product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
-
-            product.setStock(product.getStock() - cartItem.getQuantity());
+            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(qty)));
         }
 
-        order.setTotalAmount(totalAmount);
+        order.setTotalAmount(total);
         Order savedOrder = orderRepository.save(order);
 
+        cartItemRepository.deleteAll(cart.getItems());
         cart.getItems().clear();
         cartRepository.save(cart);
-        log.info("Order created successfully with id: {} for user: {}", savedOrder.getId(), userId);
-        return mapToResponse(savedOrder);
+
+        return savedOrder;
     }
 
     @Transactional
@@ -123,6 +124,23 @@ public class OrderService {
         orderRepository.save(order);
 
         log.info("Order deleted (soft delete) with id: {}", id);
+    }
+
+    @Transactional
+    public void restoreOrderItems(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
+
+        if (order.getStatus() != OrderStatus.CANCELLED) {
+            order.setStatus(OrderStatus.CANCELLED);
+            orderRepository.save(order);
+
+            for (OrderItem item : order.getItems()) {
+                Product product = item.getProduct();
+                product.setStock(product.getStock() + item.getQuantity());
+                productRepository.save(product);
+            }
+        }
     }
 
     private OrderResponse mapToResponse(Order order) {

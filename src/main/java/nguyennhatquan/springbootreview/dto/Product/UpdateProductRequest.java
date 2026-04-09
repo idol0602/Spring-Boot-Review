@@ -1,4 +1,4 @@
-package nguyennhatquan.springbootreview.dto;
+package nguyennhatquan.springbootreview.dto.Product;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateProductRequest {
+public class UpdateProductRequest {
 
     @NotBlank(message = "Product name is required")
     @Size(min = 3, max = 255, message = "Product name must be between 3 and 255 characters")
@@ -30,9 +30,5 @@ public class CreateProductRequest {
     @Min(value = 0, message = "Stock cannot be negative")
     @Max(value = 1000000, message = "Stock must not exceed 1000000")
     private Integer stock;
-
-    @NotNull(message = "Category ID is required")
-    @Positive(message = "Category ID must be positive")
-    private Long categoryId;
 }
 

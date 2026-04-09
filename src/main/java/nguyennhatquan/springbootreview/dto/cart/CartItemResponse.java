@@ -1,4 +1,4 @@
-package nguyennhatquan.springbootreview.dto;
+package nguyennhatquan.springbootreview.dto.cart;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -13,13 +13,10 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductResponse {
-    private Long id;
-    private String name;
-    private String description;
+public class CartItemResponse {
+    private Long productId;
+    private String productName;
     private BigDecimal price;
-    private Integer stock;
-    private Long categoryId;
-    private String categoryName;
-    private Boolean isActive;
+    private Integer quantity;
+    private BigDecimal totalPrice;
 }

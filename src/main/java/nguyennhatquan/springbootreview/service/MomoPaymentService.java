@@ -93,19 +93,19 @@ public class MomoPaymentService {
     @Transactional
     public void handleCallBack(MomoCallbackRequest callback) {
         Map<String, String> signParams = new TreeMap<>();
-        signParams.put("accessKey", callback.getAccessKey());
-        signParams.put("amount", String.valueOf(callback.getAmount()));
-        signParams.put("extraData", callback.getExtraData());
-        signParams.put("message", callback.getMessage());
-        signParams.put("orderId", callback.getOrderId());
-        signParams.put("orderInfo", callback.getOrderInfo());
-        signParams.put("orderType", callback.getOrderType());
-        signParams.put("partnerCode", callback.getPartnerCode());
-        signParams.put("payType", callback.getPayType());
-        signParams.put("requestId", callback.getRequestId());
-        signParams.put("responseTime", String.valueOf(callback.getResponseTime()));
-        signParams.put("resultCode", String.valueOf(callback.getResultCode()));
-        signParams.put("transId", callback.getTransId());
+        signParams.put("accessKey", momoConfig.getAccessKey());
+        signParams.put("amount", callback.getAmount() != null ? String.valueOf(callback.getAmount()) : "");
+        signParams.put("extraData", callback.getExtraData() != null ? callback.getExtraData() : "");
+        signParams.put("message", callback.getMessage() != null ? callback.getMessage() : "");
+        signParams.put("orderId", callback.getOrderId() != null ? callback.getOrderId() : "");
+        signParams.put("orderInfo", callback.getOrderInfo() != null ? callback.getOrderInfo() : "");
+        signParams.put("orderType", callback.getOrderType() != null ? callback.getOrderType() : "");
+        signParams.put("partnerCode", callback.getPartnerCode() != null ? callback.getPartnerCode() : "");
+        signParams.put("payType", callback.getPayType() != null ? callback.getPayType() : "");
+        signParams.put("requestId", callback.getRequestId() != null ? callback.getRequestId() : "");
+        signParams.put("responseTime", callback.getResponseTime() != null ? String.valueOf(callback.getResponseTime()) : "");
+        signParams.put("resultCode", callback.getResultCode() != null ? String.valueOf(callback.getResultCode()) : "");
+        signParams.put("transId", callback.getTransId() != null ? String.valueOf(callback.getTransId()) : "");
 
         if(!momoSignatureUtil.verify(signParams, callback.getSignature(), momoConfig.getSecretKey())) {
             throw new SecurityException("Invalid Momo signature");
@@ -122,10 +122,5 @@ public class MomoPaymentService {
         payment.setMessage(callback.getMessage());
 
         paymentRepository.save(payment);
-
-        Order order = orderRepository.findById(payment.getOrderId())
-                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
-        order.setStatus(isSuccess ? OrderStatus.CONFIRMED : OrderStatus.CANCELLED); // Make sure your Order entity has this field
-        orderRepository.save(order);
     }
 }

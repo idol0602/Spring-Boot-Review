@@ -1,4 +1,4 @@
-package nguyennhatquan.springbootreview.dto;
+package nguyennhatquan.springbootreview.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
@@ -6,17 +6,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiResponse<T> {
-    private int code;
-    private String message;
-    private T data;
-    private LocalDateTime timestamp = LocalDateTime.now();
-    private String path;
+public class LoginResponse {
+    private Long id;
+    private String email;
+    private String fullName;
+    private String role;
+    private String accessToken;
+    private String tokenType = "Bearer";
 }

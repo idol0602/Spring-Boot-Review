@@ -3,14 +3,14 @@ package nguyennhatquan.springbootreview.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nguyennhatquan.springbootreview.dto.*;
-import nguyennhatquan.springbootreview.entity.User;
-import nguyennhatquan.springbootreview.repository.UserRepository;
+import nguyennhatquan.springbootreview.dto.cart.AddToCartRequest;
+import nguyennhatquan.springbootreview.dto.cart.CartResponse;
+import nguyennhatquan.springbootreview.dto.cart.UpdateCartItemRequest;
+import nguyennhatquan.springbootreview.dto.common.ApiResponse;
 import nguyennhatquan.springbootreview.security.CustomUserDetails;
 import nguyennhatquan.springbootreview.service.CartService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,15 +22,13 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
-    private final UserRepository userRepository;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<CartResponse>> getCart(Authentication authentication) {
-        log.info("Get cart for user: {}", authentication.getName());
+    public ResponseEntity<ApiResponse<CartResponse>> getCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        log.info("Get cart for user: {}", userDetails.getUsername());
 
-        User user = userRepository.findByEmail(authentication.getName()).get();
-        CartResponse data = cartService.getCart(user.getId());
+        CartResponse data = cartService.getCart(userDetails.getId());
 
         ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
                 .code(200)
@@ -46,11 +44,10 @@ public class CartController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<CartResponse>> addItem(
             @Valid @RequestBody AddToCartRequest request,
-            Authentication authentication) {
-        log.info("Add item {} with quantity {} to cart", request.getProductId(), request.getQuantity());
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        log.info("Add item {} with quantity {} to cart for user {}", request.getProductId(), request.getQuantity(), userDetails.getUsername());
 
-        User user = userRepository.findByEmail(authentication.getName()).get();
-        CartResponse data = cartService.addItem(user.getId(), request.getProductId(), request.getQuantity());
+        CartResponse data = cartService.addItem(userDetails.getId(), request.getProductId(), request.getQuantity());
 
         ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
                 .code(200)
@@ -67,11 +64,10 @@ public class CartController {
     public ResponseEntity<ApiResponse<CartResponse>> updateItem(
             @PathVariable Long productId,
             @Valid @RequestBody UpdateCartItemRequest request,
-            Authentication authentication) {
-        log.info("Update item {} with quantity {}", productId, request.getQuantity());
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        log.info("Update item {} with quantity {} for user {}", productId, request.getQuantity(), userDetails.getUsername());
 
-        User user = userRepository.findByEmail(authentication.getName()).get();
-        CartResponse data = cartService.updateItem(user.getId(), productId, request.getQuantity());
+        CartResponse data = cartService.updateItem(userDetails.getId(), productId, request.getQuantity());
 
         ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
                 .code(200)
@@ -105,11 +101,10 @@ public class CartController {
 
     @DeleteMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Object>> clearCart(Authentication authentication) {
-        log.info("Clear cart for user: {}", authentication.getName());
+    public ResponseEntity<ApiResponse<Object>> clearCart(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        log.info("Clear cart for user: {}", userDetails.getUsername());
 
-        User user = userRepository.findByEmail(authentication.getName()).get();
-        cartService.clearCart(user.getId());
+        cartService.clearCart(userDetails.getId());
 
         ApiResponse<Object> response = ApiResponse.builder()
                 .code(200)

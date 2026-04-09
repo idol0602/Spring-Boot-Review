@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/api/products/**").permitAll()
                         .requestMatchers("/api/payment/momo/**").permitAll() // Mở toàn bộ endpoint của MoMo
+                        .requestMatchers("/api/checkout/momo/callback").permitAll() // Webhook của MoMo
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated());
 

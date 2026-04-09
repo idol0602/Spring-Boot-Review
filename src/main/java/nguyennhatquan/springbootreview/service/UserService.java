@@ -2,9 +2,9 @@ package nguyennhatquan.springbootreview.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nguyennhatquan.springbootreview.dto.CreateUserRequest;
-import nguyennhatquan.springbootreview.dto.LoginRequest;
-import nguyennhatquan.springbootreview.dto.LoginResponse;
+import nguyennhatquan.springbootreview.dto.auth.CreateUserRequest;
+import nguyennhatquan.springbootreview.dto.auth.LoginRequest;
+import nguyennhatquan.springbootreview.dto.auth.LoginResponse;
 import nguyennhatquan.springbootreview.entity.Role;
 import nguyennhatquan.springbootreview.entity.Cart;
 import nguyennhatquan.springbootreview.entity.User;

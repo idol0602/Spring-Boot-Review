@@ -2,8 +2,8 @@ package nguyennhatquan.springbootreview.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nguyennhatquan.springbootreview.dto.CartItemResponse;
-import nguyennhatquan.springbootreview.dto.CartResponse;
+import nguyennhatquan.springbootreview.dto.cart.CartItemResponse;
+import nguyennhatquan.springbootreview.dto.cart.CartResponse;
 import nguyennhatquan.springbootreview.entity.Cart;
 import nguyennhatquan.springbootreview.entity.CartItem;
 import nguyennhatquan.springbootreview.entity.Product;

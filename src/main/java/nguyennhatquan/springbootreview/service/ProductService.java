@@ -2,10 +2,10 @@ package nguyennhatquan.springbootreview.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nguyennhatquan.springbootreview.dto.CreateProductRequest;
-import nguyennhatquan.springbootreview.dto.PageResponse;
-import nguyennhatquan.springbootreview.dto.ProductResponse;
-import nguyennhatquan.springbootreview.dto.UpdateProductRequest;
+import nguyennhatquan.springbootreview.dto.Product.CreateProductRequest;
+import nguyennhatquan.springbootreview.dto.common.PageResponse;
+import nguyennhatquan.springbootreview.dto.Product.ProductResponse;
+import nguyennhatquan.springbootreview.dto.Product.UpdateProductRequest;
 import nguyennhatquan.springbootreview.entity.Category;
 import nguyennhatquan.springbootreview.entity.Product;
 import nguyennhatquan.springbootreview.exception.ResourceNotFoundException;

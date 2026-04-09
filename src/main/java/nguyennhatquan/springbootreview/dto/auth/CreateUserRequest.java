@@ -1,4 +1,4 @@
-package nguyennhatquan.springbootreview.dto;
+package nguyennhatquan.springbootreview.dto.auth;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

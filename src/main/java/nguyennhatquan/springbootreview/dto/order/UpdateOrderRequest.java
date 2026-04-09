@@ -1,4 +1,4 @@
-package nguyennhatquan.springbootreview.dto;
+package nguyennhatquan.springbootreview.dto.order;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
