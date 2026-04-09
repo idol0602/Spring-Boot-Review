@@ -7,7 +7,6 @@ import nguyennhatquan.springbootreview.dto.momo.MomoCallbackRequest;
 import nguyennhatquan.springbootreview.dto.momo.MomoCreatePaymentRequest;
 import nguyennhatquan.springbootreview.dto.momo.MomoCreatePaymentResponse;
 import nguyennhatquan.springbootreview.entity.Order;
-import nguyennhatquan.springbootreview.entity.OrderStatus;
 import nguyennhatquan.springbootreview.entity.Payment;
 import nguyennhatquan.springbootreview.entity.PaymentStatus;
 import nguyennhatquan.springbootreview.repository.OrderRepository;

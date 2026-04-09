@@ -1,5 +1,6 @@
 package nguyennhatquan.springbootreview.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nguyennhatquan.springbootreview.dto.Product.CreateProductRequest;
@@ -11,6 +12,7 @@ import nguyennhatquan.springbootreview.entity.Product;
 import nguyennhatquan.springbootreview.exception.ResourceNotFoundException;
 import nguyennhatquan.springbootreview.repository.CategoryRepository;
 import nguyennhatquan.springbootreview.repository.ProductRepository;
+import nguyennhatquan.springbootreview.service.cache.MultiLevelCacheService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,43 +26,49 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final MultiLevelCacheService cacheService;
 
     @Transactional(readOnly = true)
     public PageResponse<ProductResponse> getAll(int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Product> page = productRepository.findByIsActive(true, pageable);
-
-        log.debug("Fetched {} products from page {}", page.getContent().size(), pageNo);
-
-        return buildPageResponse(page, pageNo, pageSize);
+        String key = "product_all_page_" + pageNo + "_size_" + pageSize;
+        return cacheService.get(key, () -> {
+            Pageable pageable = PageRequest.of(pageNo, pageSize);
+            Page<Product> page = productRepository.findByIsActive(true, pageable);
+            log.debug("Fetched {} products from page {}", page.getContent().size(), pageNo);
+            return buildPageResponse(page, pageNo, pageSize);
+        }, new TypeReference<PageResponse<ProductResponse>>() {});
     }
 
     @Transactional(readOnly = true)
     public PageResponse<ProductResponse> getByCategory(Long categoryId, int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Product> page = productRepository.findByCategoryIdAndIsActive(categoryId, true, pageable);
-
-        log.debug("Fetched {} products for category {} from page {}", page.getContent().size(), categoryId, pageNo);
-
-        return buildPageResponse(page, pageNo, pageSize);
+        String key = "product_category_" + categoryId + "_page_" + pageNo + "_size_" + pageSize;
+        return cacheService.get(key, () -> {
+            Pageable pageable = PageRequest.of(pageNo, pageSize);
+            Page<Product> page = productRepository.findByCategoryIdAndIsActive(categoryId, true, pageable);
+            log.debug("Fetched {} products for category {} from page {}", page.getContent().size(), categoryId, pageNo);
+            return buildPageResponse(page, pageNo, pageSize);
+        }, new TypeReference<PageResponse<ProductResponse>>() {});
     }
 
     @Transactional(readOnly = true)
     public PageResponse<ProductResponse> search(String keyword, int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Product> page = productRepository.findByNameContainingIgnoreCaseAndIsActive(keyword, true, pageable);
-
-        log.debug("Searched {} products with keyword '{}' from page {}", page.getContent().size(), keyword, pageNo);
-
-        return buildPageResponse(page, pageNo, pageSize);
+        String key = "product_search_" + keyword + "_page_" + pageNo + "_size_" + pageSize;
+        return cacheService.get(key, () -> {
+            Pageable pageable = PageRequest.of(pageNo, pageSize);
+            Page<Product> page = productRepository.findByNameContainingIgnoreCaseAndIsActive(keyword, true, pageable);
+            log.debug("Searched {} products with keyword '{}' from page {}", page.getContent().size(), keyword, pageNo);
+            return buildPageResponse(page, pageNo, pageSize);
+        }, new TypeReference<PageResponse<ProductResponse>>() {});
     }
 
     @Transactional(readOnly = true)
     public ProductResponse getById(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
-
-        return mapToResponse(product);
+        String key = "product_" + id;
+        return cacheService.get(key, () -> {
+            Product product = productRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+            return mapToResponse(product);
+        }, new TypeReference<ProductResponse>() {});
     }
 
     @Transactional
@@ -78,8 +86,9 @@ public class ProductService {
                 .build();
 
         Product saved = productRepository.save(product);
-
         log.info("Product created: {} with id: {}", product.getName(), saved.getId());
+
+        evictProductCaches(null);
 
         return mapToResponse(saved);
     }
@@ -95,8 +104,9 @@ public class ProductService {
         existing.setStock(request.getStock());
 
         Product updated = productRepository.save(existing);
-
         log.info("Product updated: {} with id: {}", request.getName(), id);
+
+        evictProductCaches(id);
 
         return mapToResponse(updated);
     }
@@ -108,8 +118,18 @@ public class ProductService {
 
         product.setIsActive(false);
         productRepository.save(product);
-
         log.info("Product deleted (soft delete): {}", id);
+
+        evictProductCaches(id);
+    }
+
+    private void evictProductCaches(Long id) {
+        if (id != null) {
+            cacheService.evict("product", String.valueOf(id));
+        }
+        cacheService.evictPrefix("product_all_page_");
+        cacheService.evictPrefix("product_category_");
+        cacheService.evictPrefix("product_search_");
     }
 
     private ProductResponse mapToResponse(Product product) {

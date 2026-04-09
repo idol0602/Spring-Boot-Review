@@ -5,12 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nguyennhatquan.springbootreview.dto.common.ApiResponse;
 import nguyennhatquan.springbootreview.dto.common.PageResponse;
-import nguyennhatquan.springbootreview.dto.order.CreateOrderRequest;
 import nguyennhatquan.springbootreview.dto.order.OrderResponse;
 import nguyennhatquan.springbootreview.dto.order.UpdateOrderRequest;
 import nguyennhatquan.springbootreview.security.CustomUserDetails;
 import nguyennhatquan.springbootreview.service.OrderService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -63,8 +61,6 @@ public class OrderController {
 
         return ResponseEntity.ok(response);
     }
-
-// create order is now located in CheckoutController
 
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")

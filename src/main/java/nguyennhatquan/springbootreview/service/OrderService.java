@@ -130,17 +130,11 @@ public class OrderService {
     public void restoreOrderItems(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
-
-        if (order.getStatus() != OrderStatus.CANCELLED) {
-            order.setStatus(OrderStatus.CANCELLED);
-            orderRepository.save(order);
-
             for (OrderItem item : order.getItems()) {
                 Product product = item.getProduct();
                 product.setStock(product.getStock() + item.getQuantity());
                 productRepository.save(product);
             }
-        }
     }
 
     private OrderResponse mapToResponse(Order order) {

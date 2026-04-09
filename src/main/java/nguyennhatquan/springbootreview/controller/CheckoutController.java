@@ -2,6 +2,7 @@ package nguyennhatquan.springbootreview.controller;
 
 import lombok.RequiredArgsConstructor;
 import nguyennhatquan.springbootreview.dto.momo.MomoCallbackRequest;
+import nguyennhatquan.springbootreview.dto.momo.MomoCreatePaymentResponse;
 import nguyennhatquan.springbootreview.dto.order.CheckoutRequest;
 import nguyennhatquan.springbootreview.security.CustomUserDetails;
 import nguyennhatquan.springbootreview.service.CheckoutService;
@@ -17,12 +18,12 @@ public class CheckoutController {
     private final CheckoutService checkoutService;
 
     @PostMapping("/momo")
-    public ResponseEntity<String> createOrderAndPaymentForMomo(
+    public ResponseEntity<MomoCreatePaymentResponse> createOrderAndPaymentForMomo(
             @RequestBody CheckoutRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        String payUrl = checkoutService.createOrderAndPaymentForMomo(request, userDetails.getId());
-        return ResponseEntity.ok(payUrl);
+        MomoCreatePaymentResponse response = checkoutService.createOrderAndPaymentForMomo(request, userDetails.getId());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/momo/callback")

@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: springboot-postgres
@@ -22,7 +21,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: springboot-redis
@@ -39,7 +37,25 @@ services:
       timeout: 5s
       retries: 5
 
-  # PgAdmin (Database Management Tool)
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: springboot-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"    # AMQP port (app kết nối)
+      - "15672:15672"  # Management UI: http://localhost:15672
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - springboot-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: springboot-pgadmin
@@ -58,8 +74,9 @@ volumes:
     driver: local
   redis_data:
     driver: local
+  rabbitmq_data:
+    driver: local
 
 networks:
   springboot-network:
     driver: bridge
-

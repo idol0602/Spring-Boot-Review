@@ -2,6 +2,7 @@ package nguyennhatquan.springbootreview.service;
 
 import lombok.RequiredArgsConstructor;
 import nguyennhatquan.springbootreview.dto.momo.MomoCallbackRequest;
+import nguyennhatquan.springbootreview.dto.momo.MomoCreatePaymentResponse;
 import nguyennhatquan.springbootreview.dto.order.CheckoutRequest;
 import nguyennhatquan.springbootreview.entity.Order;
 import nguyennhatquan.springbootreview.entity.OrderStatus;
@@ -16,9 +17,9 @@ public class CheckoutService {
     private final MomoPaymentService momoPaymentService;
 
     @Transactional
-    public String createOrderAndPaymentForMomo(CheckoutRequest request, Long userId) {
+    public MomoCreatePaymentResponse createOrderAndPaymentForMomo(CheckoutRequest request, Long userId) {
         Order order = orderService.createOrder(request, userId);
-        return momoPaymentService.createPayment(order.getId()).getPayUrl();
+        return momoPaymentService.createPayment(order.getId());
     }
 
     @Transactional
@@ -29,6 +30,7 @@ public class CheckoutService {
         if (callbackRequest.getResultCode() == 0) {
             orderService.updateStatus(orderId, OrderStatus.CONFIRMED);
         } else {
+            orderService.updateStatus(orderId, OrderStatus.CANCELLED);
             orderService.restoreOrderItems(orderId);
         }
     }
