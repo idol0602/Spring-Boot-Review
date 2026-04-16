@@ -12,6 +12,7 @@ COPY --from=build /app/target/springbootreview-1.0.0-gateway.jar gateway.jar
 COPY --from=build /app/target/springbootreview-1.0.0-user.jar user.jar
 COPY --from=build /app/target/springbootreview-1.0.0-order.jar order.jar
 COPY --from=build /app/target/springbootreview-1.0.0-product.jar product.jar
+COPY --from=build /app/target/springbootreview-1.0.0-payment.jar payment.jar
 
 # Define an entrypoint script or let docker-compose pass the command
 CMD ["java", "-jar", "gateway.jar"]

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import nguyennhatquan.springbootreview.order.dto.cart.AddToCartRequest;
 import nguyennhatquan.springbootreview.order.dto.cart.CartResponse;
 import nguyennhatquan.springbootreview.order.dto.cart.UpdateCartItemRequest;
-import nguyennhatquan.springbootreview.shared.dto.common.ApiResponse;
+import nguyennhatquan.springbootreview.shared.dto.ApiResponse;
 import nguyennhatquan.springbootreview.shared.security.CustomUserDetails;
 import nguyennhatquan.springbootreview.order.service.CartService;
 import org.springframework.http.ResponseEntity;

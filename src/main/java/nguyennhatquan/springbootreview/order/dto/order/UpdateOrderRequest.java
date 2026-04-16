@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import nguyennhatquan.springbootreview.shared.entity.OrderStatus;
+import nguyennhatquan.springbootreview.order.entity.OrderStatus;
 
 @Data
 @NoArgsConstructor

@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import nguyennhatquan.springbootreview.shared.entity.Cart;
-import nguyennhatquan.springbootreview.shared.entity.Order;
-import nguyennhatquan.springbootreview.shared.entity.Role;
-import nguyennhatquan.springbootreview.shared.entity.User;
+import nguyennhatquan.springbootreview.order.entity.Cart;
+import nguyennhatquan.springbootreview.order.entity.Order;
+import nguyennhatquan.springbootreview.user.entity.Role;
+import nguyennhatquan.springbootreview.user.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.Collection;

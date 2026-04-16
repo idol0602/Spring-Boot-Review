@@ -1,7 +1,7 @@
 package nguyennhatquan.springbootreview.shared.security;
 
 import lombok.RequiredArgsConstructor;
-import nguyennhatquan.springbootreview.shared.repository.UserRepository;
+import nguyennhatquan.springbootreview.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

@@ -2,7 +2,7 @@ package nguyennhatquan.springbootreview.shared.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import nguyennhatquan.springbootreview.shared.dto.common.ApiResponse;
+import nguyennhatquan.springbootreview.shared.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;

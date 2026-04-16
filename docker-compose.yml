@@ -76,6 +76,7 @@ services:
       - "8080:8080"
     command: ["java", "-jar", "gateway.jar"]
     environment:
+      - SPRING_PROFILES_ACTIVE=gateway
       - SPRING_MAIN_WEB_APPLICATION_TYPE=reactive
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springboot_review
       - SPRING_DATA_REDIS_HOST=redis
@@ -83,12 +84,20 @@ services:
     networks:
       - springboot-network
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-      - user-service
-      - order-service
-      - product-service
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      product-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
 
   user-service:
     build: .
@@ -99,14 +108,19 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=user
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springboot_review
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_RABBITMQ_HOST=rabbitmq
     networks:
       - springboot-network
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   order-service:
     build: .
@@ -117,14 +131,19 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=order
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springboot_review
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_RABBITMQ_HOST=rabbitmq
     networks:
       - springboot-network
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   product-service:
     build: .
@@ -135,14 +154,48 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=product
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springboot_review
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_DATA_REDIS_HOST=redis
       - SPRING_RABBITMQ_HOST=rabbitmq
     networks:
       - springboot-network
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  payment-service:
+    build: .
+    container_name: payment-service
+    ports:
+      - "8084:8084"
+    command: ["java", "-jar", "payment.jar"]
+    environment:
+      - SPRING_PROFILES_ACTIVE=payment
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springboot_review
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - MOMO_PARTNER_CODE=${MOMO_PARTNER_CODE:-MOMOBKUN20180529}
+      - MOMO_ACCESS_KEY=${MOMO_ACCESS_KEY:-klm05TvNBzhg7h7j}
+      - MOMO_SECRET_KEY=${MOMO_SECRET_KEY:-at67qH6mk8w5Y1nAyMoYKMWACiEi2bsa}
+      - MOMO_ENDPOINT=${MOMO_ENDPOINT:-https://test-payment.momo.vn/v2/gateway/api/create}
+      - MOMO_REDIRECT_URL=${MOMO_REDIRECT_URL:-http://localhost:8080/api/payment/momo/return}
+      - MOMO_IPN_URL=${MOMO_IPN_URL:-http://localhost:8080/api/payment/momo/callback}
+    networks:
+      - springboot-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   postgres_data:

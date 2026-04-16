@@ -198,6 +198,14 @@
                             <mainClass>nguyennhatquan.springbootreview.product.ProductServiceApplication</mainClass>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>payment</id>
+                        <goals><goal>repackage</goal></goals>
+                        <configuration>
+                            <classifier>payment</classifier>
+                            <mainClass>nguyennhatquan.springbootreview.payment.PaymentServiceApplication</mainClass>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

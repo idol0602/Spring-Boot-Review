@@ -27,11 +27,14 @@ public class GatewayApplication {
                         .path("/api/auth/**", "/api/users/**")
                         .uri("http://user-service:8081"))
                 .route("order-service", r -> r
-                        .path("/api/orders/**", "/api/cart/**", "/api/payment/**", "/api/checkout/**")
+                        .path("/api/orders/**", "/api/cart/**")
                         .uri("http://order-service:8082"))
                 .route("product-service", r -> r
                         .path("/api/products/**", "/api/categories/**")
                         .uri("http://product-service:8083"))
+                .route("payment-service", r -> r
+                        .path("/api/payment/**", "/api/checkout/**")
+                        .uri("http://payment-service:8084"))
                 .build();
     }
 }

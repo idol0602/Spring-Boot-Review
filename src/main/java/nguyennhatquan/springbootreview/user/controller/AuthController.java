@@ -3,7 +3,7 @@ package nguyennhatquan.springbootreview.user.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nguyennhatquan.springbootreview.shared.dto.common.ApiResponse;
+import nguyennhatquan.springbootreview.shared.dto.ApiResponse;
 import nguyennhatquan.springbootreview.user.dto.auth.CreateUserRequest;
 import nguyennhatquan.springbootreview.user.dto.auth.LoginRequest;
 import nguyennhatquan.springbootreview.user.dto.auth.LoginResponse;

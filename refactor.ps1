@@ -88,16 +88,16 @@ $replacements = @{
 
     "nguyennhatquan\.springbootreview\.controller\.OrderController" = "nguyennhatquan.springbootreview.order.controller.OrderController"
     "nguyennhatquan\.springbootreview\.controller\.CartController" = "nguyennhatquan.springbootreview.order.controller.CartController"
-    "nguyennhatquan\.springbootreview\.controller\.CheckoutController" = "nguyennhatquan.springbootreview.order.controller.CheckoutController"
-    "nguyennhatquan\.springbootreview\.controller\.MomoPaymentController" = "nguyennhatquan.springbootreview.order.controller.MomoPaymentController"
+    "nguyennhatquan\.springbootreview\.controller\.CheckoutController" = "nguyennhatquan.springbootreview.payment.controller.CheckoutController"
+    "nguyennhatquan\.springbootreview\.controller\.MomoPaymentController" = "nguyennhatquan.springbootreview.payment.controller.momo.MomoPaymentController"
     "nguyennhatquan\.springbootreview\.service\.OrderService" = "nguyennhatquan.springbootreview.order.service.OrderService"
     "nguyennhatquan\.springbootreview\.service\.CartService" = "nguyennhatquan.springbootreview.order.service.CartService"
-    "nguyennhatquan\.springbootreview\.service\.CheckoutService" = "nguyennhatquan.springbootreview.order.service.CheckoutService"
-    "nguyennhatquan\.springbootreview\.service\.MomoPaymentService" = "nguyennhatquan.springbootreview.order.service.MomoPaymentService"
+    "nguyennhatquan\.springbootreview\.service\.CheckoutService" = "nguyennhatquan.springbootreview.payment.service.CheckoutService"
+    "nguyennhatquan\.springbootreview\.service\.MomoPaymentService" = "nguyennhatquan.springbootreview.payment.service.momo.MomoPaymentService"
     "nguyennhatquan\.springbootreview\.dto\.order" = "nguyennhatquan.springbootreview.order.dto.order"
     "nguyennhatquan\.springbootreview\.dto\.cart" = "nguyennhatquan.springbootreview.order.dto.cart"
     "nguyennhatquan\.springbootreview\.dto\.momo" = "nguyennhatquan.springbootreview.order.dto.momo"
-    "nguyennhatquan\.springbootreview\.util\.MomoSignatureUtil" = "nguyennhatquan.springbootreview.order.util.MomoSignatureUtil"
+    "nguyennhatquan\.springbootreview\.util\.MomoSignatureUtil" = "nguyennhatquan.springbootreview.payment.util.MomoSignatureUtil"
 }
 
 Write-Host "Updating package and import declarations..."
