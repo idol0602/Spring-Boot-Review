@@ -1,0 +1,170 @@
+package nguyennhatquan.springbootreview.order.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import nguyennhatquan.springbootreview.order.dto.cart.CartItemResponse;
+import nguyennhatquan.springbootreview.order.dto.cart.CartResponse;
+import nguyennhatquan.springbootreview.shared.entity.Cart;
+import nguyennhatquan.springbootreview.shared.entity.CartItem;
+import nguyennhatquan.springbootreview.shared.entity.Product;
+import nguyennhatquan.springbootreview.shared.exception.ResourceNotFoundException;
+import nguyennhatquan.springbootreview.shared.repository.CartItemRepository;
+import nguyennhatquan.springbootreview.shared.repository.CartRepository;
+import nguyennhatquan.springbootreview.shared.repository.ProductRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class CartService {
+
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
+
+    @Transactional(readOnly = true)
+    public CartResponse getCart(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user: " + userId));
+
+        return mapToResponse(cart);
+    }
+
+    @Transactional
+    public CartResponse addItem(Long userId, Long productId, Integer quantity) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user: " + userId));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+        if (quantity <= 0) {
+            throw new RuntimeException("Quantity must be greater than 0");
+        }
+
+        if (product.getStock() < quantity) {
+            throw new RuntimeException("Insufficient stock for product: " + product.getName());
+        }
+
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
+                .orElse(CartItem.builder()
+                        .cart(cart)
+                        .product(product)
+                        .quantity(0)
+                        .build());
+
+        cartItem.setQuantity(cartItem.getQuantity() + quantity);
+        cartItemRepository.save(cartItem);
+
+        cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user: " + userId));
+
+        log.info("Added {} of product {} to cart for user {}", quantity, productId, userId);
+
+        return mapToResponse(cart);
+    }
+
+    @Transactional
+    public CartResponse updateItem(Long userId, Long productId, Integer quantity) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user: " + userId));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
+
+        if (quantity <= 0) {
+            CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Item not found in cart"));
+            cartItemRepository.delete(cartItem);
+
+            // Sync memory
+            if (cart.getItems() != null) {
+                cart.getItems().removeIf(item -> item.getProduct().getId().equals(productId));
+            }
+        } else {
+            if (product.getStock() < quantity) {
+                throw new RuntimeException("Insufficient stock for product: " + product.getName());
+            }
+
+            CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Item not found in cart"));
+
+            cartItem.setQuantity(quantity);
+            cartItemRepository.save(cartItem);
+        }
+
+        log.info("Updated item {} in cart for user {}", productId, userId);
+
+        return mapToResponse(cart);
+    }
+
+    @Transactional
+    public CartResponse removeItem(Long userId, Long productId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user: " + userId));
+
+        // Find and delete the cart item
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found in cart for product: " + productId));
+
+        cartItemRepository.delete(cartItem);
+
+        // Remove from the collection in memory to keep the persistence context synchronized
+        if (cart.getItems() != null) {
+            cart.getItems().removeIf(item -> item.getProduct().getId().equals(productId));
+        }
+
+        log.info("Removed item {} from cart for user {}", productId, userId);
+
+        return mapToResponse(cart);
+    }
+
+    @Transactional
+    public void clearCart(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user: " + userId));
+
+        // Delete all cart items for this cart
+        if (cart.getItems() != null && !cart.getItems().isEmpty()) {
+            cartItemRepository.deleteAll(cart.getItems());
+            cart.getItems().clear(); // Sync memory
+        }
+
+        log.info("Cart cleared for user {}", userId);
+    }
+
+    private CartResponse mapToResponse(Cart cart) {
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        if (cart.getItems() != null && !cart.getItems().isEmpty()) {
+            for (CartItem item : cart.getItems()) {
+                BigDecimal itemTotal = item.getProduct().getPrice()
+                        .multiply(BigDecimal.valueOf(item.getQuantity()));
+                totalPrice = totalPrice.add(itemTotal);
+            }
+        }
+
+        return CartResponse.builder()
+                .id(cart.getId())
+                .userId(cart.getUser().getId())
+                .items(cart.getItems() != null ? cart.getItems().stream()
+                        .map(this::mapItemToResponse).toList() : new ArrayList<>())
+                .totalPrice(totalPrice)
+                .build();
+    }
+
+    private CartItemResponse mapItemToResponse(CartItem item) {
+        return CartItemResponse.builder()
+                .productId(item.getProduct().getId())
+                .productName(item.getProduct().getName())
+                .price(item.getProduct().getPrice())
+                .quantity(item.getQuantity())
+                .totalPrice(item.getProduct().getPrice()
+                        .multiply(BigDecimal.valueOf(item.getQuantity())))
+                .build();
+    }
+}

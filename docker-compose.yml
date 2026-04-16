@@ -69,6 +69,81 @@ services:
     networks:
       - springboot-network
 
+  gateway-service:
+    build: .
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    command: ["java", "-jar", "gateway.jar"]
+    environment:
+      - SPRING_MAIN_WEB_APPLICATION_TYPE=reactive
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springboot_review
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    networks:
+      - springboot-network
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+      - user-service
+      - order-service
+      - product-service
+
+  user-service:
+    build: .
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    command: ["java", "-jar", "user.jar"]
+    environment:
+      - SPRING_PROFILES_ACTIVE=user
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springboot_review
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    networks:
+      - springboot-network
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+
+  order-service:
+    build: .
+    container_name: order-service
+    ports:
+      - "8082:8082"
+    command: ["java", "-jar", "order.jar"]
+    environment:
+      - SPRING_PROFILES_ACTIVE=order
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springboot_review
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    networks:
+      - springboot-network
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+
+  product-service:
+    build: .
+    container_name: product-service
+    ports:
+      - "8083:8083"
+    command: ["java", "-jar", "product.jar"]
+    environment:
+      - SPRING_PROFILES_ACTIVE=product
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/springboot_review
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    networks:
+      - springboot-network
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+
 volumes:
   postgres_data:
     driver: local

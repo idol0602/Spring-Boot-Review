@@ -34,17 +34,18 @@ cp .env.example .env
 # REDIS_HOST=localhost
 ```
 
-### 4️⃣ Run Application
-```bash
-# Compile & run (tự động migrate database)
-./mvnw spring-boot:run
+### 4️⃣ Run Application (Service-Based Architecture)
+Vì dự án đã được chuyển sang kiến trúc Service-Based (chạy 4 ứng dụng song song), cách duy nhất và dễ nhất để khởi động toàn bộ là dùng Docker.
 
-# Or build & run
-./mvnw clean package
-java -jar target/springbootreview-1.0.0.jar
+```bash
+# Build mã nguồn và bật TẤT CẢ dịch vụ (Database, Cache, Gateway, User, Order, Product)
+docker-compose up -d --build
+
+# Kiểm tra trạng thái các container
+docker-compose ps
 ```
 
-Ứng dụng chạy tại: **http://localhost:8080/api**
+Ứng dụng API Gateway sẽ đứng ra làm cổng chính đón request tại: **http://localhost:8080/api**
 
 ---
 
