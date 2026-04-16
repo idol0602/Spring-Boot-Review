@@ -56,8 +56,6 @@ Thumbs.db
 # Docker
 docker-compose.override.yml
 
-#
-application-dev.properties
-application-prod.properties
-application.properties
+# .properties
+application-*.properties
 
